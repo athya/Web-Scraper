@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 #add (random?) wait times
 #maybe work on captchas later
 #abstract away!
-def scrapeMoviePage(url):
+def scrapeMovieInfo(url):
     #to prevent being blocked
     my_session = requests.session()
     for_cookies = my_session.get("https://www.metacritic.com")
@@ -49,4 +49,36 @@ def scrapeMoviePage(url):
     with open('movieData.txt', 'w') as outfile: #better syntax and exception handling, will automatically close file
         json.dump(web_data, outfile) #format data as json and write to outfile
 
-scrapeMoviePage('https://www.metacritic.com/movie/angel-has-fallen')
+def scrapeMovieLinks(url):
+    my_session = requests.session()
+    for_cookies = my_session.get("https://www.metacritic.com")
+    cookies = for_cookies.cookies
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
+    my_url = url
+
+    response = my_session.get(my_url, headers=headers, cookies=cookies)
+    print(response.status_code)  # 200
+
+    page = response.text #get XML from URL
+    soup = BeautifulSoup(page, 'xml') #parses XML
+    valid_movies = []
+    links = soup.find_all('loc')
+    for link in links:
+        content = link.text
+        index = content.find("movie/")
+        if index != -1 and (index + 6) <= len(content) and content[index+6:].find("/") == -1:
+            valid_movies.append(content)
+
+    print(valid_movies)
+    with open('movieLinks.txt', 'a+') as outfile: #better syntax and exception handling, will automatically close file
+        json.dump(valid_movies, outfile) #format data as json and write to outfile
+        #add appending vs writing?
+
+def initializeMovieList():
+    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
+    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
+    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
+
+initializeMovieList()
+    
+#scrapeMovieInfo('https://www.metacritic.com/movie/joker?ref=hp')
