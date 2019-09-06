@@ -3,8 +3,7 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-
-
+import csv
 
 #storing html of page in result variable
 #maybe work on scraping dynamic websites later
@@ -47,7 +46,9 @@ def scrapeMovieInfo(url):
     }
     
     with open('movieData.txt', 'w') as outfile: #better syntax and exception handling, will automatically close file
-        json.dump(web_data, outfile) #format data as json and write to outfile
+#json.dump(web_data, outfile) #format data as json and write to outfile
+        writer = csv.writer(outfile)
+        writer.writerows(web_data)
 
 def scrapeMovieLinks(url):
     my_session = requests.session()
@@ -70,13 +71,18 @@ def scrapeMovieLinks(url):
             valid_movies.append(content)
 
     print(valid_movies)
-    with open('movieLinks.txt', 'a+') as outfile: #better syntax and exception handling, will automatically close file
-        json.dump(valid_movies, outfile) #format data as json and write to outfile
+    with open('movieLinksCSV.txt', 'a') as outfile: #better syntax and exception handling, will automatically close file
+#json.dump(valid_movies, outfile) #format data as json and write to outfile
         #add appending vs writing?
+        writer = csv.writer(outfile)
+        for line in valid_movies:
+                writer.writerow([line])
 
 def initializeMovieList():
-    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
-    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
+    with open('movieLinksCSV.txt', 'w') as outfile:
+        outfile.write("Link\n")
+    #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
+    #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
 initializeMovieList()
