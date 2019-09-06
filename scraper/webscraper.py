@@ -79,7 +79,7 @@ def scrapeMovieLinks(url):
                 writer.writerow([line])
 
 def initializeMovieList():
-    with open('movieLinksCSV.txt', 'w') as outfile:
+    with open('movieLinksCSV.csv', 'w') as outfile:
         outfile.write("Link\n")
     #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
     #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
