@@ -4,6 +4,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import csv
+import time
 
 #storing html of page in result variable
 #maybe work on scraping dynamic websites later
@@ -29,7 +30,12 @@ def scrapeMovieInfo(url):
     title_text = soup.find('h1').text
     release_date = soup.find('span', class_='release_year lighter').text
     summary = soup.find('div',class_='summary_deck details_section')
-    summary_text = summary.find('span', class_='blurb blurb_expanded').text
+    summary_text = ''
+    if summary is not None: #put more error checks! abstract away
+        summary_chunk = summary.find('span', class_='blurb blurb_expanded')
+        if summary_chunk is not None:
+            summary_text = summary_chunk.text
+# see invictus movie to modify this! shutter island, legion!
 
     reviews = soup.find_all('a', {'id': 'nav_to_metascore'}, href=True) #not working
     print(reviews);
@@ -45,10 +51,7 @@ def scrapeMovieInfo(url):
         'review links': links
     }
     
-    with open('movieData.txt', 'w') as outfile: #better syntax and exception handling, will automatically close file
-#json.dump(web_data, outfile) #format data as json and write to outfile
-        writer = csv.writer(outfile)
-        writer.writerows(web_data)
+    return web_data
 
 def scrapeMovieLinks(url):
     my_session = requests.session()
@@ -75,11 +78,24 @@ def scrapeMovieLinks(url):
         for line in valid_movies:
             writer.writerow([line])
 
+    time.sleep(5)
+
 def initializeMovieList():
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
-initializeMovieList()
-    
+def fillTable(urls):
+    if not isinstance(urls, list):
+        #add error statement?
+        return
+
+    for url in urls:
+        web_data = scrapeMovieInfo(url);
+        print(web_data);
+        with open(web_data.get('title') + '.txt', 'w+') as outfile: #better syntax and exception handling, will automatically close file
+            #json.dump(web_data, outfile) #format data as json and write to outfile
+            writer = csv.writer(outfile)
+            writer.writerows(web_data)
+
 #scrapeMovieInfo('https://www.metacritic.com/movie/joker?ref=hp')
