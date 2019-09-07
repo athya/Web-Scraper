@@ -1,6 +1,6 @@
-CREATE DATABASE movies;
+CREATE DATABASE scraper;
 
-\c movies
+\c scraper
 
 CREATE TABLE movie (
 	id SERIAL PRIMARY KEY,
@@ -14,4 +14,4 @@ CREATE TABLE movie (
 );
 
 
---\copy movie (url) FROM '../movieLinksCSV.csv' DELIMITER ',' CSV HEADER;
+\copy movie (url) FROM '/Users/Athya/documents/web-scraper/scraper/movieLinks.csv' WITH (FORMAT CSV, DELIMITER ',');

@@ -70,19 +70,14 @@ def scrapeMovieLinks(url):
         if index != -1 and (index + 6) <= len(content) and content[index+6:].find("/") == -1:
             valid_movies.append(content)
 
-    print(valid_movies)
-    with open('movieLinksCSV.txt', 'a') as outfile: #better syntax and exception handling, will automatically close file
-#json.dump(valid_movies, outfile) #format data as json and write to outfile
-        #add appending vs writing?
+    with open('movieLinks.csv', 'a+') as outfile: #better syntax and exception handling, will automatically close file
         writer = csv.writer(outfile)
         for line in valid_movies:
-                writer.writerow([line])
+            writer.writerow([line])
 
 def initializeMovieList():
-    with open('movieLinksCSV.csv', 'w') as outfile:
-        outfile.write("Link\n")
-    #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
-    #scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
+    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
+    scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
 initializeMovieList()
