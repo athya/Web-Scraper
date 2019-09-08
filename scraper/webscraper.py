@@ -45,6 +45,7 @@ def scrapeMovieInfo(url):
          links.append(ref)
     
     web_data = {
+        'url': url,
         'title': title_text,
         'release date': release_date,
         'summary': summary_text,
@@ -87,15 +88,11 @@ def initializeMovieList():
 
 def fillTable(urls):
     if not isinstance(urls, list):
-        #add error statement?
+        #add error statement? #add better error handling
         return
 
     for url in urls:
         web_data = scrapeMovieInfo(url);
-        print(web_data);
-        with open(web_data.get('title') + '.txt', 'w+') as outfile: #better syntax and exception handling, will automatically close file
-            #json.dump(web_data, outfile) #format data as json and write to outfile
-            writer = csv.writer(outfile)
-            writer.writerows(web_data)
-
-#scrapeMovieInfo('https://www.metacritic.com/movie/joker?ref=hp')
+        with open(web_data.get('title') + '.txt', 'w+') as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=list(web_data.keys()), delimiter = ',')
+            writer.writerow(web_data)
