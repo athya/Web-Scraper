@@ -38,7 +38,6 @@ def scrapeMovieInfo(url):
 # see invictus movie to modify this! shutter island, legion!
 
     reviews = soup.find_all('a', {'id': 'nav_to_metascore'}, href=True) #not working
-    print(reviews);
     links = [];
     for review in reviews:
          ref = review['href']
@@ -47,9 +46,8 @@ def scrapeMovieInfo(url):
     web_data = {
         'url': url,
         'title': title_text,
-        'release date': release_date,
-        'summary': summary_text,
-        'review links': links
+        'release_date': release_date,
+        'summary': summary_text
     }
     
     return web_data
@@ -92,7 +90,12 @@ def fillTable(urls):
         return
 
     for url in urls:
-        web_data = scrapeMovieInfo(url);
-        with open(web_data.get('title') + '.txt', 'w+') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=list(web_data.keys()), delimiter = ',')
+        web_data = scrapeMovieInfo(url)
+        print(web_data)
+        with open(web_data.get('title') + '.csv', 'w+') as outfile:
+            writer = csv.DictWriter(outfile, fieldnames=list(web_data.keys()), delimiter = '|')
             writer.writerow(web_data)
+
+#make some kind of global table labels thing?
+
+#initializeMovieList()
