@@ -13,44 +13,86 @@ import time
 #add (random?) wait times
 #maybe work on captchas later
 #abstract away!
-def scrapeMovieInfo(url):
-    #to prevent being blocked
+
+def getHTML(url):
     my_session = requests.session()
     for_cookies = my_session.get("https://www.metacritic.com")
     cookies = for_cookies.cookies
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
     my_url = url
-
+    
     response = my_session.get(my_url, headers=headers, cookies=cookies)
     print(response.status_code)  # 200
     
     page = response.text #get HTML from URL
 
-    soup = BeautifulSoup(page,'html.parser') #parses html
+    #with open () #use date/time to create file names
+    return page
+
+def getMovieInfo(url, HTML):
+    soup = BeautifulSoup(HTML,'html.parser')
+    
     title_text = soup.find('h1').text
     release_date = soup.find('span', class_='release_year lighter').text
+    
     summary = soup.find('div',class_='summary_deck details_section')
     summary_text = ''
     if summary is not None: #put more error checks! abstract away
+        summary_text = summary.text
+        summary_chunk = (summary.find_all('span'))[1].find('span')
+        if summary_chunk is not None:
+            summary_text = summary_chunk.text
         summary_chunk = summary.find('span', class_='blurb blurb_expanded')
         if summary_chunk is not None:
             summary_text = summary_chunk.text
-# see invictus movie to modify this! shutter island, legion!
+    
+    metascore = soup.find('a', class_="metascore_anchor").find('span').text
 
-    reviews = soup.find_all('a', {'id': 'nav_to_metascore'}, href=True) #not working
-    links = [];
+    director = soup.find('div', class_='director').find('a').text
+
+    genres = soup.find('div',class_='genres').find_all('span')[1].text.strip()
+    genres = "".join(genres.split())
+
+    rating = soup.find('div',class_='rating').find_all('span')[1].text.strip()
+    
+    distributer = soup.find('div', class_='details_section').find('a')
+    if distributer is not None:
+        distributer = distributer.text
+    else:
+        distributer = ''
+
+    reviews = soup.find_all('div', class_="summary")
+    links = []
     for review in reviews:
-         ref = review['href']
-         links.append(ref)
+        tagged_link = review.find("a")
+        #print(review)
+        #print(tagged_link)
+        if tagged_link is not None:
+            link_content = tagged_link['href']
+            if "http" in link_content:
+                links.append(link_content)
     
     web_data = {
         'url': url,
         'title': title_text,
+        'director': director,
+        'distributer': distributer,
         'release_date': release_date,
-        'summary': summary_text
+        'genres': genres,
+        'rating': rating,
+        'metascore': metascore,
+        'summary': summary_text,
+        'review_links': links
     }
     
     return web_data
+
+def scrapeMovieInfo(url):
+    html = getHTML(url)
+    result = getMovieInfo(url, html)
+    print(result)
+
+scrapeMovieInfo('https://www.metacritic.com/movie/bio-dome')
 
 def scrapeMovieLinks(url):
     my_session = requests.session()
@@ -60,7 +102,7 @@ def scrapeMovieLinks(url):
     my_url = url
 
     response = my_session.get(my_url, headers=headers, cookies=cookies)
-    print(response.status_code)  # 200
+    print(response.status_code)
 
     page = response.text #get XML from URL
     soup = BeautifulSoup(page, 'xml') #parses XML
@@ -72,7 +114,7 @@ def scrapeMovieLinks(url):
         if index != -1 and (index + 6) <= len(content) and content[index+6:].find("/") == -1:
             valid_movies.append(content)
 
-    with open('movieLinks.csv', 'a+') as outfile: #better syntax and exception handling, will automatically close file
+    with open('movieLinks.csv', 'a+') as outfile: 
         writer = csv.writer(outfile)
         for line in valid_movies:
             writer.writerow([line])
@@ -97,5 +139,3 @@ def fillTable(urls):
             writer.writerow(web_data)
 
 #make some kind of global table labels thing?
-
-#initializeMovieList()
