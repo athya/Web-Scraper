@@ -6,13 +6,11 @@ from bs4 import BeautifulSoup
 import csv
 import time
 
-#storing html of page in result variable
 #maybe work on scraping dynamic websites later
 #consider using Xpath rather than CSS selector
 #consider watching for server side blacklisting by using proxies
 #add (random?) wait times
 #maybe work on captchas later
-#abstract away!
 
 def getHTML(url):
     my_session = requests.session()
@@ -26,7 +24,6 @@ def getHTML(url):
     
     page = response.text #get HTML from URL
 
-    #with open () #use date/time to create file names
     return page
 
 def getMovieInfo(url, HTML):
@@ -46,19 +43,40 @@ def getMovieInfo(url, HTML):
         if summary_chunk is not None:
             summary_text = summary_chunk.text
     
-    metascore = soup.find('a', class_="metascore_anchor").find('span').text
+    try:
+        metascore = soup.find('a', class_="metascore_anchor").find('span').text
+    except:
+        metascore = ""
 
-    director = soup.find('div', class_='director').find('a').text
+    try:
+        director = soup.find('div', class_='director').find('a').text
+    except:
+        director = ""
 
-    genres = soup.find('div',class_='genres').find_all('span')[1].text.strip()
-    genres = "".join(genres.split())
+    try:
+        genres = soup.find('div',class_='genres').find_all('span')[1].text.strip()
+        genres = "".join(genres.split())
+    except:
+        genres = ""
 
-    rating = soup.find('div',class_='rating').find_all('span')[1].text.strip()
-    
-    distributer = soup.find('div', class_='details_section').find('a')
-    if distributer is not None:
-        distributer = distributer.text
-    else:
+    try:
+        rating = soup.find('div',class_='rating').find_all('span')[1].text.strip()
+    except:
+        rating = ""
+
+    actors = []
+    try:
+        actors_html = soup.find('div', class_='summary_cast details_section').find_all('a')
+        for actor in actors_html:
+            name = actor.text
+            actors.append(name)
+    except:
+        actors = []
+        #do nothing
+
+    try:
+        distributer = soup.find('div', class_='details_section').find('a').text
+    except:
         distributer = ''
 
     reviews = soup.find_all('div', class_="summary")
@@ -82,6 +100,7 @@ def getMovieInfo(url, HTML):
         'rating': rating,
         'metascore': metascore,
         'summary': summary_text,
+        'actors': actors,
         'review_links': links
     }
     
@@ -90,9 +109,9 @@ def getMovieInfo(url, HTML):
 def scrapeMovieInfo(url):
     html = getHTML(url)
     result = getMovieInfo(url, html)
-    print(result)
+    return result
 
-scrapeMovieInfo('https://www.metacritic.com/movie/bio-dome')
+scrapeMovieInfo('https://www.metacritic.com/movie/hustlers')
 
 def scrapeMovieLinks(url):
     my_session = requests.session()
@@ -119,23 +138,24 @@ def scrapeMovieLinks(url):
         for line in valid_movies:
             writer.writerow([line])
 
-    time.sleep(5)
+    time.sleep(15)
 
 def initializeMovieList():
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/1/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
-def fillTable(urls):
+def movieToFile(urls):
     if not isinstance(urls, list):
         #add error statement? #add better error handling
         return
 
     for url in urls:
         web_data = scrapeMovieInfo(url)
+        print(url)
         print(web_data)
-        with open(web_data.get('title') + '.csv', 'w+') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=list(web_data.keys()), delimiter = '|')
-            writer.writerow(web_data)
+        #with open(web_data.get('title') + '.csv', 'w+') as outfile:
+            #writer = csv.DictWriter(outfile, fieldnames=list(web_data.keys()), delimiter = '|')
+            #writer.writerow(web_data)
 
 #make some kind of global table labels thing?
