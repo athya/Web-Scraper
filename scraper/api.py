@@ -15,11 +15,19 @@ def getEmptyURLS(num):
 
     return urls
 
+#remove url from list of unscraped urls
+def removeURL(url):
+    con = psycopg2.connect("dbname='scraper' user='postgres' host='localhost' password='" + ps.password + "'")
+    cursor = con.cursor()
+
+    cursor.execute("DELETE FROM unscraped_url WHERE (url = '" + url + "');");
+
 def getMovieData(name):
     return
     #get movie data by name
     #to-do
 
+#given a dict with movie data, add that data to the database
 def addMovieData(movie_data):
     con = psycopg2.connect("dbname='scraper' user='postgres' host='localhost' password='" + ps.password + "'")
     cursor = con.cursor()
@@ -32,7 +40,7 @@ def addMovieData(movie_data):
         writer.writerow(web_data)
 
     with open(filename, 'r') as infile:
-        cursor.execute("DELETE FROM unscraped_url WHERE (url = '" + url + "');");
+        #cursor.execute("DELETE FROM unscraped_url WHERE (url = '" + url + "');");
         cursor.copy_from(infile, 'movie', sep='|', columns=("url","title","release_date","summary"))
         con.commit()
 
