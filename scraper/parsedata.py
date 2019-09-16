@@ -85,7 +85,7 @@ def getMovieInfo(file):
             'metascore': metascore,
             'summary': summary_text,
             'actors': actors,
-            'review_links': links
+            'reviews': links
         }
 
         print(web_data)
