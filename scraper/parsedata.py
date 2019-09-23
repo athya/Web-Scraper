@@ -1,12 +1,35 @@
 import time
 from bs4 import BeautifulSoup
+import csv
+
+
+
+keys = [
+            'url',
+            'title',
+            'director',
+            'distributer',
+            'release_date',
+            'genres',
+            'rating',
+            'metascore',
+            'summary',
+            'actors',
+            'reviews'
+        ]
 
 def movieToFile(movie_data):
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    with open(timestr + '.csv', 'w+') as outfile:
+    filename = './data/' + timestr + '.csv'
+    with open(filename, 'w+') as outfile:
         writer = csv.DictWriter(outfile, fieldnames=list(movie_data.keys()), delimiter = '|')
         writer.writerow(movie_data)
+        return filename
 
+def fileToMovie(file, keys):
+    with open (file, 'r') as infile:
+        reader = csv.DictReader(infile, fieldnames=keys, delimiter = '|')
+        mydict = {rows[0]:rows[1] for rows in reader}
 #given an HTML file with the url as the first line of the file, get
 #movie data
 def getMovieInfo(file):

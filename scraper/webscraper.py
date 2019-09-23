@@ -26,11 +26,13 @@ def getHTML(url):
 
 def HTMLtoFile(url, HTML):
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    with open (timestr + '.html', 'w+') as outfile:
+    with open ('./html/' + timestr + '.html', 'w+') as outfile:
         outfile.write(url + '\n')
         outfile.write(html)
 
-#scrapeMovieInfo('https://www.metacritic.com/movie/hustlers')
+url = 'https://www.metacritic.com/movie/hustlers'
+html = getHTML(url)
+HTMLtoFile(url, html)
 
 #scrapes metacritic links to movies given a link to an xml sitemap
 def scrapeMovieLinks(url):

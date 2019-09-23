@@ -9,7 +9,8 @@ CREATE TABLE temp (
 
 CREATE TABLE unscraped_url (
 	id SERIAL PRIMARY KEY,
-	url VARCHAR (2100) NOT NULL UNIQUE
+	url VARCHAR (2100) NOT NULL UNIQUE,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE movie (
@@ -32,10 +33,10 @@ CREATE TABLE review (
 	id SERIAL PRIMARY KEY,
 	movie_id INT REFERENCES movie(id) ON DELETE CASCADE,
 	url VARCHAR (2100) NOT NULL,
-	content VARCHAR (5000)
+	content VARCHAR (5000),
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 
 \copy temp (url) FROM '/Users/Athya/documents/web-scraper/scraper/movieLinks.csv' WITH (FORMAT CSV, DELIMITER ',');
