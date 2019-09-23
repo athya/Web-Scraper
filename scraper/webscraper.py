@@ -25,7 +25,7 @@ def getHTML(url):
 
     return page
 
-def HTMLtoFile(url, HTML):
+def HTMLtoFile(url, html):
     timestr = time.strftime("%Y%m%d-%H%M%S")
     with open ('./html/' + timestr + '.html', 'w+') as outfile:
         outfile.write(url + '\n')
@@ -65,9 +65,8 @@ def initializeMovieList():
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
-#get num number of files from the html folder
-def getMovieFiles(num):
-    path = './html'
+#get num number of files from the folder at path
+def getFiles(path, num):
     #r is root, d is directories, f is files
     files = []
     for r, d, f in os.walk(path):
