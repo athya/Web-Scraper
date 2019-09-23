@@ -1,8 +1,7 @@
 import time
 from bs4 import BeautifulSoup
 import csv
-
-
+import os
 
 keys = [
             'url',
@@ -113,3 +112,20 @@ def getMovieInfo(file):
 
         print(web_data)
         return web_data
+
+#get num number of files from the folder at path
+def getFiles(path, num):
+    #r is root, d is directories, f is files
+    files = []
+    for r, d, f in os.walk(path):
+        for file in f:
+            files.append(os.path.join(r, file))
+
+    return files
+
+#delete file given full filename
+def deleteFile(file):
+    if os.path.exists(file):
+        os.remove(file)
+    else:
+        print("The file does not exist") #handle errors better
