@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import csv
 import time
 import random
+import os
 #maybe work on scraping dynamic websites later
 #consider using Xpath rather than CSS selector
 #consider watching for server side blacklisting by using proxies
@@ -29,10 +30,6 @@ def HTMLtoFile(url, HTML):
     with open ('./html/' + timestr + '.html', 'w+') as outfile:
         outfile.write(url + '\n')
         outfile.write(html)
-
-url = 'https://www.metacritic.com/movie/hustlers'
-html = getHTML(url)
-HTMLtoFile(url, html)
 
 #scrapes metacritic links to movies given a link to an xml sitemap
 def scrapeMovieLinks(url):
@@ -68,6 +65,20 @@ def initializeMovieList():
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/2/sitemap.xml')
     scrapeMovieLinks('https://www.metacritic.com/sitemap/Movie-movie/3/sitemap.xml')
 
+#get num number of files from the html folder
+def getMovieFiles(num):
+    path = './html'
+    #r is root, d is directories, f is files
+    files = []
+    for r, d, f in os.walk(path):
+        for file in f:
+            files.append(os.path.join(r, file))
 
-#make some kind of global table labels thing?
+    return files
 
+#delete file given full filename
+def deleteFile(file):
+    if os.path.exists(file):
+        os.remove(file) 
+    else:
+        print("The file does not exist") #handle errors better
