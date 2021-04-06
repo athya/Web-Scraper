@@ -18,6 +18,8 @@ keys = [
         ]
 
 def movieToFile(movie_data):
+    if movie_data is None:
+        return
     timestr = time.strftime("%Y%m%d-%H%M%S")
     filename = './data/' + timestr + '.csv'
     with open(filename, 'w+') as outfile:
@@ -35,8 +37,12 @@ def getMovieInfo(file):
     with open (file, 'r') as infile:
         url = infile.readline().strip()
         soup = BeautifulSoup(infile.read(),'html.parser')
-        
-        title_text = soup.find('h1').text
+
+        try:
+            title_text = soup.find('h1').text
+        except:
+            return; #no title = no movie ??
+            
         release_date = soup.find('span', class_='release_year lighter').text
         
         summary = soup.find('div',class_='summary_deck details_section')
